@@ -1,39 +1,39 @@
 # CRUD Tests — Google Calendar
 
-E2E тести для перевірки CRUD-операцій у Google Calendar, написані на [Playwright](https://playwright.dev/) + TypeScript.
+E2E tests for verifying CRUD operations in Google Calendar, built with [Playwright](https://playwright.dev/) + TypeScript.
 
-## Тести
+## Test Cases
 
-| Тест | Опис |
-|------|------|
-| **CREATE** | Створення нової події в календарі |
-| **READ** | Читання деталей існуючої події |
-| **UPDATE** | Оновлення назви існуючої події |
-| **DELETE** | Видалення події та перевірка її відсутності |
+| Test | Description |
+|------|-------------|
+| **CREATE** | Create a new event in the calendar |
+| **READ** | Read details of an existing event |
+| **UPDATE** | Update the title of an existing event |
+| **DELETE** | Delete an event and verify it no longer exists |
 
-## Структура проєкту
+## Project Structure
 
 ```
 CRUD-tests/
 ├── tests/
-│   ├── google-calendar-crud.spec.ts  # CRUD тест-сценарії
-│   └── auth.setup.ts                 # налаштування авторизації
+│   ├── google-calendar-crud.spec.ts  # CRUD test scenarios
+│   └── auth.setup.ts                 # authentication setup
 ├── pages/
-│   ├── CalendarPage.ts               # Page Object для Google Calendar
-│   └── LoginPage.ts                  # Page Object для сторінки логіну
+│   ├── CalendarPage.ts               # Page Object for Google Calendar
+│   └── LoginPage.ts                  # Page Object for the login page
 ├── data/
-│   └── testData.ts                   # тестові дані (назви подій, юзер)
+│   └── testData.ts                   # test data (event titles, user credentials)
 ├── .github/workflows/
-│   └── playwright.yml                # CI/CD пайплайн (GitHub Actions)
-└── playwright.config.ts              # конфігурація Playwright
+│   └── playwright.yml                # CI/CD pipeline (GitHub Actions)
+└── playwright.config.ts              # Playwright configuration
 ```
 
-## Вимоги
+## Requirements
 
 - Node.js LTS
-- Google-акаунт з доступом до Google Calendar
+- A Google account with access to Google Calendar
 
-## Встановлення
+## Installation
 
 ```bash
 git clone git@github.com:ixand/CRUD-tests.git
@@ -42,50 +42,50 @@ npm install
 npx playwright install
 ```
 
-## Налаштування середовища
+## Environment Setup
 
-Створи файл `.env` у корені проєкту:
+Create a `.env` file in the project root:
 
 ```env
 GOOGLE_EMAIL=your@gmail.com
 GOOGLE_PASSWORD=yourpassword
 ```
 
-### Auth state (збереження сесії)
+### Auth State (session persistence)
 
-Перед першим запуском потрібно зберегти стан авторизації:
+Before the first run, save the authentication state:
 
 ```bash
 npx playwright test --project=auth
 ```
 
-Це створить `playwright/.auth/user.json` з cookies сесії Google.
+This will create `playwright/.auth/user.json` with your Google session cookies.
 
-## Запуск тестів
+## Running Tests
 
 ```bash
-# Усі тести
+# All tests
 npx playwright test
 
-# З UI-режимом
+# With UI mode
 npx playwright test --ui
 
-# Конкретний тест
+# A specific test
 npx playwright test -g "CREATE"
 
-# З HTML-звітом
+# With HTML report
 npx playwright test --reporter=html
 npx playwright show-report
 ```
 
 ## CI/CD
 
-GitHub Actions автоматично запускає тести при пуші в `main`/`master`.
+GitHub Actions automatically runs tests on push to `main`/`master`.
 
-Необхідні секрети в репозиторії (Settings → Secrets):
+Required repository secrets (Settings → Secrets):
 
-| Секрет | Опис |
-|--------|------|
-| `GOOGLE_EMAIL` | Email Google-акаунту |
-| `GOOGLE_PASSWORD` | Пароль Google-акаунту |
-| `PLAYWRIGHT_AUTH_STATE` | Вміст `playwright/.auth/user.json` |
+| Secret | Description |
+|--------|-------------|
+| `GOOGLE_EMAIL` | Google account email |
+| `GOOGLE_PASSWORD` | Google account password |
+| `PLAYWRIGHT_AUTH_STATE` | Contents of `playwright/.auth/user.json` |
