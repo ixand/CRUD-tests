@@ -42,7 +42,8 @@ CRUD-tests/
 │   └── save-auth.js                  # saves the Google session (npm run auth)
 ├── .github/workflows/
 │   └── playwright.yml                # GitHub Actions pipeline
-└── playwright.config.ts              # Playwright configuration
+├── playwright.config.ts              # Playwright configuration
+└── tsconfig.json                     # TypeScript settings for the editor and type checking
 ```
 
 Generated and git-ignored: `playwright/.auth/` (session and Chrome profile), `test-results/`,
@@ -110,6 +111,16 @@ CI=1 npx playwright test         # run the way CI does: headless, 2 retries
 
 Run the whole file rather than single tests when you can. READ, UPDATE and DELETE expect the event
 that CREATE makes.
+
+### Type checking
+
+```bash
+npx tsc  # type-check all TypeScript files, emits nothing
+```
+
+Playwright compiles TypeScript without type checking, so a type error does not stop a test run. `tsconfig.json` exists for the editor and for
+`npx tsc`: it loads the Node.js types (`process.env` in `playwright.config.ts`) and uses
+`nodenext` module resolution.
 
 ## Configuration
 
