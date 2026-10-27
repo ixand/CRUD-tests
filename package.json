@@ -9,7 +9,8 @@
     "test:debug": "npx playwright test --debug",
     "test:ui": "npx playwright test --ui",
     "report": "npx playwright show-report",
-    "auth": "node scripts/save-auth.js"
+    "auth": "node scripts/save-auth.js",
+    "typecheck": "tsc"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",

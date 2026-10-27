@@ -3,8 +3,16 @@ name: Playwright Tests
 on:
   push:
     branches: [ main, master ]
+    # кожен прогін витрачає ліміт запитів Google, тож зміни лише в документації тести не запускають
+    paths-ignore: [ '**.md' ]
   pull_request:
     branches: [ main, master ]
+    paths-ignore: [ '**.md' ]
+
+# новий пуш у ту саму гілку скасовує попередній прогін: два одночасні прогони б'ють по одному акаунту
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -19,14 +27,37 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: npm
        
       - name: Install dependencies
         run: npm ci
-       
+
+      # без запитів до Google: помилка типів зупиняє job до тестів
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(node -p "require('./node_modules/@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-chromium
+
       # тести використовують лише chromium; повний --with-deps для всіх браузерів зависав на apt
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         timeout-minutes: 10
         run: npx playwright install --with-deps chromium
+
+      # браузер узято з кешу, системні бібліотеки однаково ставляться через apt
+      - name: Install Playwright system dependencies
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        timeout-minutes: 10
+        run: npx playwright install-deps chromium
 
       - name: Restore auth state
         env:

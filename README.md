@@ -115,12 +115,12 @@ that CREATE makes.
 ### Type checking
 
 ```bash
-npx tsc  # type-check all TypeScript files, emits nothing
+npm run typecheck  # runs tsc: type-checks all TypeScript files, emits nothing
 ```
 
-Playwright compiles TypeScript without type checking, so a type error does not stop a test run. `tsconfig.json` exists for the editor and for
-`npx tsc`: it loads the Node.js types (`process.env` in `playwright.config.ts`) and uses
-`nodenext` module resolution.
+Playwright compiles TypeScript without type checking, so a type error does not stop a test run.
+CI runs this check before the tests. `tsconfig.json` exists for the editor and for `tsc`: it loads
+the Node.js types (`process.env` in `playwright.config.ts`) and uses `nodenext` module resolution.
 
 ## Configuration
 
@@ -146,16 +146,25 @@ run starts a local report server and waits for Ctrl+C, which hangs a CI job unti
 ## CI/CD
 
 [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml) runs on every push and pull
-request to `main`/`master`:
+request to `main`/`master`, except when only Markdown files changed. Every run uses up part of the
+Google request limit (see [Troubleshooting](#troubleshooting)), so documentation changes do not
+trigger it. A new push to a branch cancels a run still in progress on that branch.
 
-1. Check out the code and set up Node.js LTS.
+1. Check out the code and set up Node.js LTS with the npm cache.
 2. `npm ci`.
-3. `npx playwright install --with-deps chromium` (10 min timeout). Only Chromium is installed; the
-   tests use nothing else.
-4. Write the `PLAYWRIGHT_AUTH_STATE` secret to `playwright/.auth/user.json`.
-5. `npx playwright test` (20 min timeout).
-6. Upload `playwright-report/` and `test-results/` as the `playwright-artifacts` artifact, kept for
+3. `npm run typecheck`. A type error fails the job before any request to Google.
+4. Restore Chromium from the cache, keyed by the installed Playwright version. On a cache miss,
+   `npx playwright install --with-deps chromium`; on a hit, only `npx playwright install-deps chromium`
+   for the system libraries (10 min timeout each). Only Chromium is installed; the tests use nothing
+   else.
+5. Write the `PLAYWRIGHT_AUTH_STATE` secret to `playwright/.auth/user.json`.
+6. `npx playwright test` (20 min timeout).
+7. Upload `playwright-report/` and `test-results/` as the `playwright-artifacts` artifact, kept for
    30 days, whether the tests passed or not.
+
+There is no sharding on purpose. READ, UPDATE and DELETE depend on the event CREATE makes, so the
+tests cannot be split across machines, and parallel runs against one account hit the Google
+limit sooner.
 
 The whole job has a 60 minute limit. A normal run takes about one minute.
 
@@ -200,6 +209,7 @@ its `aria-label`, which the dialog's button does not have.
 | Timeout waiting for a button by name | The UI language is not Ukrainian, or Google renamed the label | Check the page snapshot in `test-results/` |
 | Several `Playwright Test Event` entries on the calendar | An earlier run stopped between CREATE and DELETE | Delete the leftover events by hand |
 | `npm run auth` reports no session | Chrome was closed before the calendar loaded | Run it again and wait for the calendar |
+| Events are missing, or a change is undone after reload; calendar requests return 403 | Google is rate-limiting the account after too many requests (runs, reloads, changes) | Stop all runs and wait 30–60 minutes. Do not rerun in a loop or with several workers |
 
 Every failed test leaves `test-failed-1.png`, `video.webm` and `error-context.md` (an accessibility
 snapshot of the page) in `test-results/`. In CI these are in the `playwright-artifacts` artifact.
