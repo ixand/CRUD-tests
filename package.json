@@ -5,16 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "npx playwright test",
-    "test:setup": "playwright test --project=setup",
     "test:headed": "npx playwright test --headed",
     "test:debug": "npx playwright test --debug",
     "test:ui": "npx playwright test --ui",
-    "report": "npx playwright show-report"
+    "report": "npx playwright show-report",
+    "auth": "node scripts/save-auth.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
     "@types/node": "^20.0.0",
-    "dotenv": "^17.2.2",
     "typescript": "^5.0.0"
   },
   "keywords": [

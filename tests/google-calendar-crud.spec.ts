@@ -1,7 +1,6 @@
 import { test, expect} from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
 import { CalendarPage} from '../pages/CalendarPage';
-import { TEST_USER, TEST_EVENT, UPDATED_EVENT } from '../data/testData';
+import { TEST_EVENT, UPDATED_EVENT } from '../data/testData';
 
 
 test.describe('Google Calendar CRUD Operations', () => {

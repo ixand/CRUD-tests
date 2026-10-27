@@ -10,11 +10,7 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    
-    env:
-      GOOGLE_EMAIL: ${{ secrets.GOOGLE_EMAIL }}
-      GOOGLE_PASSWORD: ${{ secrets.GOOGLE_PASSWORD }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,10 +35,9 @@ jobs:
           mkdir -p playwright/.auth
           printf '%s' "$PLAYWRIGHT_AUTH_STATE" > playwright/.auth/user.json
 
-      # лише chromium: проєкт auth логіниться паролем і в CI не запускається
       - name: Run Playwright tests
         timeout-minutes: 20
-        run: npx playwright test --project=chromium
+        run: npx playwright test
        
       - name: Upload Playwright artifacts
         if: always()

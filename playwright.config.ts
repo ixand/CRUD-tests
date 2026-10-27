@@ -1,7 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-import dotenv from 'dotenv';
-dotenv.config({ path: '.env' });
-
 
 export default defineConfig({
   testDir: './tests',
@@ -28,18 +25,8 @@ export default defineConfig({
       name: 'chromium',
       use: { 
         ...devices['Desktop Chrome'],
-        // готовий auth state
-        storageState: process.env.CI 
-          ? 'playwright/.auth/user.json'  // В CI з секрету
-          : 'playwright/.auth/user.json', // Локально теж звідси
-      },
-    },
-    {
-      // локальне отримання сесії: npx playwright test --project=auth
-      name: 'auth',
-      testMatch: /auth\.setup\.ts/,
-      use: {
-        ...devices['Desktop Chrome'],
+        // готовий auth state: в CI з секрету, локально — з npm run auth
+        storageState: 'playwright/.auth/user.json',
       },
     },
   ],
