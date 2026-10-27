@@ -11,9 +11,10 @@ export default defineConfig({
   },
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 1,
+  retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  // open: 'never' — інакше при падінні репортер піднімає сервер і CI висить до таймауту
+  reporter: [['html', { open: 'never' }]],
   use: {
     baseURL: 'https://calendar.google.com',
     trace: 'on-first-retry',
@@ -31,6 +32,14 @@ export default defineConfig({
         storageState: process.env.CI 
           ? 'playwright/.auth/user.json'  // В CI з секрету
           : 'playwright/.auth/user.json', // Локально теж звідси
+      },
+    },
+    {
+      // локальне отримання сесії: npx playwright test --project=auth
+      name: 'auth',
+      testMatch: /auth\.setup\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
       },
     },
   ],

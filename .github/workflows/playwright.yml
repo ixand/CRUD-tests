@@ -27,17 +27,22 @@ jobs:
       - name: Install dependencies
         run: npm ci
        
+      # тести використовують лише chromium; повний --with-deps для всіх браузерів зависав на apt
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-       
-      # ВИПРАВЛЕНО: використовуємо pipe | для багаторядкової команди
+        timeout-minutes: 10
+        run: npx playwright install --with-deps chromium
+
       - name: Restore auth state
+        env:
+          PLAYWRIGHT_AUTH_STATE: ${{ secrets.PLAYWRIGHT_AUTH_STATE }}
         run: |
           mkdir -p playwright/.auth
-          echo '${{ secrets.PLAYWRIGHT_AUTH_STATE }}' > playwright/.auth/user.json
-          
+          printf '%s' "$PLAYWRIGHT_AUTH_STATE" > playwright/.auth/user.json
+
+      # лише chromium: проєкт auth логіниться паролем і в CI не запускається
       - name: Run Playwright tests
-        run: npx playwright test --reporter=html
+        timeout-minutes: 20
+        run: npx playwright test --project=chromium
        
       - name: Upload Playwright artifacts
         if: always()

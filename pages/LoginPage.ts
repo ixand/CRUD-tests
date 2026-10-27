@@ -10,7 +10,7 @@ export class LoginPage {
   constructor(page: Page) {
     this.page = page;
     // точні інпути
-    this.emailInput = page.locator('input[type="email"][name="identifier"]');
+    this.emailInput = page.locator('input[name="identifier"]');
     this.emailNextBtn = page.locator('#identifierNext');
     this.passwordInput = page.locator('input[type="password"][name="Passwd"]');
     this.passwordNextBtn = page.locator('#passwordNext');
@@ -21,15 +21,11 @@ export class LoginPage {
 
     await this.page.goto('https://accounts.google.com/signin');
     // email
-    if (await this.emailInput.isVisible()) {
-      await this.emailInput.fill(email);
-      await this.emailNextBtn.click();
-    }
+    await this.emailInput.fill(email);
+    await this.emailNextBtn.click();
 
-    // пароль 
-    await this.passwordInput.waitFor({ state: 'visible'});
+    // пароль
     await this.passwordInput.fill(password);
     await this.passwordNextBtn.click();
-    await this.page.waitForTimeout(2000)
   }
 }

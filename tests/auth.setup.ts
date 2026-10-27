@@ -12,7 +12,8 @@ setup('authenticate with Google', async ({ page }) => {
   await loginPage.login(TEST_USER.email!, TEST_USER.password!);
   
   // Чекаємо на завантаження календаря (значить логін успішний)
-  await page.waitForURL('**/myaccount.google.com/**', { timeout: 3000 });
+  // 60с — щоб встигнути вручну підтвердити вхід, якщо Google попросить
+  await page.waitForURL('**/myaccount.google.com/**', { timeout: 60000 });
   
   // Зберігаємо стан авторизації
   await page.context().storageState({ path: authFile });
